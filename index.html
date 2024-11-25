@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue.js Pet Depot</title>
+    <script src="https://unpkg.com/vue@2.7.8/dist/vue.js"></script>
+    <link rel="manifest" href="petstore1.webmanifest">
+</head>
+
+<body>
+    <div id="app">
+        <header>
+            <h1 v-text="sitename"></h1>
+            <button @click="showCheckout">
+                {{ cartItemCount }}
+                <span class="fas fa-cart-plus"></span>Checkout
+            </button>
+        </header>
+        <main>
+            <div v-if="showProduct">
+                <div class="product" v-for="product in sortedProducts">
+                    <figure>
+                        <img v-bind:src="product.image" alt="Product Image" style="height: 30vh;">
+                    </figure>
+                    <h2 v-text="product.subject"></h2>
+                    <p v-html="product.description"></p>
+                    <p>Location: {{ product.location }}</p>
+                    <p>Price: {{ product.price }}</p>
+                    <button @click="addToCart(product)" v-if="canAddToCart">Add to Cart</button>
+                    <button disabled="disabled" v-else>Add to Cart</button>
+                </div>
+            </div>
+            
+            <div v-else>
+                <h2>Checkout</h2>
+                <h3>Billing Address</h3>
+                <label for="fname"><i class="fa fa-user"></i> Full Name</label>
+                <input type="text" id="fname" name="firstname" placeholder="John M. Doe"><br><br>
+                <label for="email"><i class="fa fa-envelope"></i> Email</label>
+                <input type="text" id="email" name="email" placeholder="john@example.com"><br><br>
+                <label for="adr"><i class="fa fa-address-card-o"></i> Address</label>
+                <input type="text" id="adr" name="address" placeholder="542 W. 15th Street"><br><br>
+                <label for="city"><i class="fa fa-institution"></i> City</label>
+                <input type="text" id="city" name="city" placeholder="New York"><br>
+            </div>
+        </main>
+    </div>
+    <script>
+            if('serviceworker' in navigator){
+                navigator.serviceWorker.register('service-worker.js');
+            };
+    </script>
+    <script type="text/javascript">
+        let webstore = new Vue({
+            el: '#app',
+            data: {
+                sitename: 'After School Club',
+                cart: [],
+                showProduct: true,
+                products: [ 
+                    {
+                        id: 1003,
+                        subject: 'English',
+                        description: `English lessons for grade 8`,
+                        location: 'Sharjah, UAE',
+                        price: 90,
+                        image: '/images/lesson.jpg',
+                        availableInventory: 10,
+                    },
+                ],
+            },
+            methods: {
+                addToCart(product) {
+                    this.cart.push(product);
+                    product.availableInventory -= 1;
+                },
+                showCheckout() {
+                    this.showProduct = !this.showProduct;
+                },
+            },
+            computed: {
+                cartItemCount() {
+                    return this.cart.length || "";
+                },
+                sortedProducts() {
+                    // Return products sorted by subject (alphabetically)
+                    return this.products.sort((a, b) =>
+                        a.subject.localeCompare(b.subject)
+                    );
+                },
+                canAddToCart() {
+                    return product => product.availableInventory > 0; // Check if inventory is available
+                }
+            }
+        });
+    </script>
+
+</body>
+
+</html>
